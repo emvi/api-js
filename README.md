@@ -1,6 +1,6 @@
-# Emvi Client API for JavaScript
+# Emvi Client API
 
-This is the JavaScript API client library for [Emvi](https://emvi.com/).
+This is the JavaScript client library for [Emvi](https://emvi.com/) based on [axios](https://github.com/axios/axios).
 
 ## Installation
 
