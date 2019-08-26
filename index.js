@@ -6,7 +6,7 @@ const apiHost = "https://api.emvi.com";
 const authenticationEndpoint = "/api/v1/auth/token";
 const searchArticlesEndpoint = "/api/v1/search/article";
 
-module.export = class EmviClient {
+module.exports = class EmviClient {
 	constructor(client_id, client_secret, config) {
 		this.client_id = client_id;
 		this.client_secret = client_secret;
