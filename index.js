@@ -62,7 +62,7 @@ module.exports = class EmviClient {
 		filter.query = query;
 
 		return new Promise((resolve, reject) => {
-			axios.get(this.api_host+searchArticlesEndpoint, {params: filter}, this._config())
+			axios.get(this.api_host+searchArticlesEndpoint, {headers: this._config().headers, params: filter})
 			.then(r => {
 				let results = r.data.articles ? r.data.articles : [];
 				resolve({results, count: r.data.count});
