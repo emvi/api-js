@@ -5,6 +5,9 @@ const authenticationHost = "https://auth.emvi.com";
 const apiHost = "https://api.emvi.com";
 const authenticationEndpoint = "/api/v1/auth/token";
 const searchArticlesEndpoint = "/api/v1/search/article";
+const searchListsEndpoint = "/api/v1/search/list";
+const searchTagsEndpoint = "/api/v1/search/tag";
+const searchAllEndpoint = "/api/v1/search";
 
 module.exports = class EmviClient {
 	constructor(client_id, client_secret, organization, config) {
@@ -47,6 +50,75 @@ module.exports = class EmviClient {
 	}
 
 	findArticles(query, filter) {
+		filter = this._checkSearchParamsAndBuildFilter(query, filter);
+
+		return new Promise((resolve, reject) => {
+			axios.get(this.api_host+searchArticlesEndpoint, {headers: this._config().headers, params: filter})
+			.then(r => {
+				resolve({results: r.data.articles || [], count: r.data.count});
+			})
+			.catch(e => {
+				reject(e);
+			});
+		});
+	}
+
+	findLists(query, filter) {
+		filter = this._checkSearchParamsAndBuildFilter(query, filter);
+
+		return new Promise((resolve, reject) => {
+			axios.get(this.api_host+searchListsEndpoint, {headers: this._config().headers, params: filter})
+			.then(r => {
+				resolve({results: r.data.lists || [], count: r.data.count});
+			})
+			.catch(e => {
+				reject(e);
+			});
+		});
+	}
+
+	findTags(query, filter) {
+		filter = this._checkSearchParamsAndBuildFilter(query, filter);
+
+		return new Promise((resolve, reject) => {
+			axios.get(this.api_host+searchTagsEndpoint, {headers: this._config().headers, params: filter})
+			.then(r => {
+				resolve({results: r.data.tags || [], count: r.data.count});
+			})
+			.catch(e => {
+				reject(e);
+			});
+		});
+	}
+
+	findAll(query, filter) {
+		let filterProvided = filter !== undefined && filter !== null;
+		filter = this._checkSearchParamsAndBuildFilter(query, filter);
+
+		if(!filterProvided) {
+			filter = {
+				articles: true,
+				lists: true,
+				tags: true,
+				articles_limit: 0,
+				lists_limit: 0,
+				tags_limit: 0,
+				query
+			};
+		}
+
+		return new Promise((resolve, reject) => {
+			axios.get(this.api_host+searchAllEndpoint, {headers: this._config().headers, params: filter})
+			.then(r => {
+				resolve({results: r.data.tags || [], count: r.data.count});
+			})
+			.catch(e => {
+				reject(e);
+			});
+		});
+	}
+
+	_checkSearchParamsAndBuildFilter(query, filter) {
 		if(typeof query !== "string") {
 			throw new TypeError("query must be of type string");
 		}
@@ -60,17 +132,7 @@ module.exports = class EmviClient {
 		}
 
 		filter.query = query;
-
-		return new Promise((resolve, reject) => {
-			axios.get(this.api_host+searchArticlesEndpoint, {headers: this._config().headers, params: filter})
-			.then(r => {
-				let results = r.data.articles ? r.data.articles : [];
-				resolve({results, count: r.data.count});
-			})
-			.catch(e => {
-				reject(e);
-			});
-		});
+		return filter;
 	}
 
 	_config() {
