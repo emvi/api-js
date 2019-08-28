@@ -110,7 +110,7 @@ module.exports = class EmviClient {
 		return new Promise((resolve, reject) => {
 			axios.get(this.api_host+searchAllEndpoint, {headers: this._config().headers, params: filter})
 			.then(r => {
-				resolve({results: r.data.tags || [], count: r.data.count});
+				resolve(r.data);
 			})
 			.catch(e => {
 				reject(e);
