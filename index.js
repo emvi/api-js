@@ -21,10 +21,20 @@ module.exports = class EmviClient {
 
 		this.auth_host = config.auth_host || authenticationHost;
 		this.api_host = config.api_host || apiHost;
+		this._addAxiosInterceptor();
+	}
 
-		this.refreshToken()
-		.catch(e => {
-			throw new Error(`error refreshing token: ${e.message}`);
+	_addAxiosInterceptor() {
+		axios.interceptors.response.use(null, e => {
+			if(e.config && e.response && e.response.status === 401) {
+				return this.refreshToken()
+				.then(() => {
+					e.config.headers = this._config().headers;
+					return axios.request(e.config);
+				});
+			}
+
+			return Promise.reject(e);
 		});
 	}
 
@@ -56,9 +66,6 @@ module.exports = class EmviClient {
 			axios.get(this.api_host+searchArticlesEndpoint, {headers: this._config().headers, params: filter})
 			.then(r => {
 				resolve({results: r.data.articles || [], count: r.data.count});
-			})
-			.catch(e => {
-				reject(e);
 			});
 		});
 	}
@@ -70,9 +77,6 @@ module.exports = class EmviClient {
 			axios.get(this.api_host+searchListsEndpoint, {headers: this._config().headers, params: filter})
 			.then(r => {
 				resolve({results: r.data.lists || [], count: r.data.count});
-			})
-			.catch(e => {
-				reject(e);
 			});
 		});
 	}
@@ -84,9 +88,6 @@ module.exports = class EmviClient {
 			axios.get(this.api_host+searchTagsEndpoint, {headers: this._config().headers, params: filter})
 			.then(r => {
 				resolve({results: r.data.tags || [], count: r.data.count});
-			})
-			.catch(e => {
-				reject(e);
 			});
 		});
 	}
@@ -111,9 +112,6 @@ module.exports = class EmviClient {
 			axios.get(this.api_host+searchAllEndpoint, {headers: this._config().headers, params: filter})
 			.then(r => {
 				resolve(r.data);
-			})
-			.catch(e => {
-				reject(e);
 			});
 		});
 	}
