@@ -165,7 +165,7 @@ module.exports = class EmviClient {
 		});
 	}
 
-	getArticleHistory() {
+	getArticleHistory(id, langId, offset) {
 		this._checkParamIsString(id);
 
 		if(langId !== undefined && langId !== null) {
