@@ -8,6 +8,15 @@ const searchArticlesEndpoint = "/api/v1/search/article";
 const searchListsEndpoint = "/api/v1/search/list";
 const searchTagsEndpoint = "/api/v1/search/tag";
 const searchAllEndpoint = "/api/v1/search";
+const organizationEndpoint = "/api/v1/organization";
+const articleEndpoint = "/api/v1/article/{id}";
+const articleHistoryEndpoint = "/api/v1/article/{id}/history";
+const languagesEndpoint = "/api/v1/lang";
+const languageEndpoint = "/api/v1/lang/{id}";
+const pinnedEndpoint = "/api/v1/pin";
+const listEndpoint = "/api/v1/articlelist/{id}";
+const listEntriesEndpoint = "/api/v1/articlelist/{id}/entry";
+const tagEndpoint = "/api/v1/tag/{name}";
 
 module.exports = class EmviClient {
 	constructor(client_id, client_secret, organization, config) {
@@ -25,20 +34,6 @@ module.exports = class EmviClient {
         this.access_token = window.localStorage.getItem("access_token");
         this.expires_in = window.localStorage.getItem("expires_in");
 		this._addAxiosInterceptor();
-	}
-
-	_addAxiosInterceptor() {
-		axios.interceptors.response.use(null, e => {
-			if(e.config && e.response && e.response.status === 401) {
-				return this.refreshToken()
-				.then(() => {
-					e.config.headers = this._config().headers;
-					return axios.request(e.config);
-				});
-			}
-
-			return Promise.reject(e);
-		});
 	}
 
 	refreshToken() {
@@ -122,6 +117,147 @@ module.exports = class EmviClient {
 		});
 	}
 
+	getOrganization() {
+		return new Promise((resolve, reject) => {
+			axios.get(this.api_host+organizationEndpoint, {headers: this._config().headers})
+			.then(r => {
+				resolve(r.data);
+			});
+		});
+	}
+
+	getLanguages() {
+		return new Promise((resolve, reject) => {
+			axios.get(this.api_host+languagesEndpoint, {headers: this._config().headers})
+			.then(r => {
+				resolve(r.data);
+			});
+		});
+	}
+
+	getLanguage(id) {
+		this._checkParamIsString(id);
+
+		return new Promise((resolve, reject) => {
+			axios.get(this.api_host+languageEndpoint.replace("{id}", id), {headers: this._config().headers})
+			.then(r => {
+				resolve(r.data);
+			});
+		});
+	}
+
+	getArticle(id, langId, version) {
+		this._checkParamIsString(id);
+
+		if(langId !== undefined && langId !== null) {
+			this._checkParamIsString(langId, "langId");
+		}
+
+		if(version !== undefined && version !== null) {
+			this._checkParamIsNumber(version, "version");
+		}
+
+		return new Promise((resolve, reject) => {
+			axios.get(this.api_host+articleEndpoint.replace("{id}", id), {headers: this._config().headers, params: {lang: langId, version}})
+			.then(r => {
+				resolve(r.data);
+			});
+		});
+	}
+
+	getArticleHistory() {
+		this._checkParamIsString(id);
+
+		if(langId !== undefined && langId !== null) {
+			this._checkParamIsString(langId, "langId");
+		}
+
+		if(offset !== undefined && offset !== null) {
+			this._checkParamIsNumber(offset, "offset");
+		}
+
+		return new Promise((resolve, reject) => {
+			axios.get(this.api_host+articleHistoryEndpoint.replace("{id}", id), {headers: this._config().headers, params: {lang: langId, offset}})
+			.then(r => {
+				resolve(r.data);
+			});
+		});
+	}
+
+	getPinned(offset_articles, offset_lists) {
+		if(offset_articles !== undefined && offset_articles !== null) {
+			this._checkParamIsNumber(offset_articles, "offset_articles");
+		}
+
+		if(offset_lists !== undefined && offset_lists !== null) {
+			this._checkParamIsNumber(offset_lists, "offset_lists");
+		}
+
+		return new Promise((resolve, reject) => {
+			axios.get(this.api_host+pinnedEndpoint, {headers: this._config().headers, params: {offset_articles, offset_lists}})
+			.then(r => {
+				resolve(r.data);
+			});
+		});
+	}
+
+	getList(id, langId) {
+		this._checkParamIsString(id);
+
+		if(langId !== undefined && langId !== null) {
+			this._checkParamIsString(langId, "langId");
+		}
+
+		return new Promise((resolve, reject) => {
+			axios.get(this.api_host+listEndpoint.replace("{id}", id), {headers: this._config().headers, params: {lang: langId}})
+			.then(r => {
+				resolve(r.data);
+			});
+		});
+	}
+
+	getListEntries(id, lang, filter) {
+		this._checkParamIsString(id);
+
+		if(langId !== undefined && langId !== null) {
+			this._checkParamIsString(langId, "langId");
+		}
+
+		// TODO validate filter
+
+		return new Promise((resolve, reject) => {
+			axios.get(this.api_host+listEntriesEndpoint.replace("{id}", id), {headers: this._config().headers, params: {lang: langId}})
+			.then(r => {
+				resolve(r.data);
+			});
+		});
+	}
+
+	getTag(name) {
+		this._checkParamIsString(name, "name");
+
+		return new Promise((resolve, reject) => {
+			axios.get(this.api_host+tagEndpoint.replace("{name}", name), {headers: this._config().headers})
+			.then(r => {
+				resolve(r.data);
+			});
+		});
+	}
+
+	_addAxiosInterceptor() {
+		axios.interceptors.response.use(null, e => {
+			if(e.config && e.response && e.response.status === 401) {
+				return this.refreshToken()
+				.then(() => {
+					e.config.headers = this._config().headers;
+					return axios.request(e.config);
+				});
+			}
+
+			return Promise.reject(e);
+		});
+	}
+
 	_checkSearchParamsAndBuildFilter(query, filter) {
 		if(typeof query !== "string") {
 			throw new TypeError("query must be of type string");
@@ -137,6 +273,18 @@ module.exports = class EmviClient {
 
 		filter.query = query;
 		return filter;
+	}
+
+	_checkParamIsString(param, name) {
+		if(typeof param !== "string") {
+			throw new TypeError(`${name} must be of type string`);
+		}
+	}
+
+	_checkParamIsNumber(param, name) {
+		if(typeof param !== "number") {
+			throw new TypeError(`${name} must be of type number`);
+		}
 	}
 
 	_config() {
