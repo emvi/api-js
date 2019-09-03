@@ -21,6 +21,9 @@ module.exports = class EmviClient {
 
 		this.auth_host = config.auth_host || authenticationHost;
 		this.api_host = config.api_host || apiHost;
+		this.token_type = window.localStorage.getItem("token_type");
+        this.access_token = window.localStorage.getItem("access_token");
+        this.expires_in = window.localStorage.getItem("expires_in");
 		this._addAxiosInterceptor();
 	}
 
@@ -51,6 +54,9 @@ module.exports = class EmviClient {
 				this.token_type = r.data.token_type;
                 this.access_token = r.data.access_token;
                 this.expires_in = parseInt(r.data.expires_in);
+                window.localStorage.setItem("token_type", this.token_type);
+                window.localStorage.setItem("access_token", this.access_token);
+                window.localStorage.setItem("expires_in", this.expires_in);
                 resolve();
 			})
 			.catch(e => {
