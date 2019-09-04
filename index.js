@@ -109,8 +109,6 @@ module.exports = class EmviClient {
 			};
 		}
 
-		console.log(filter);
-
 		return new Promise((resolve, reject) => {
 			axios.get(this.api_host+searchAllEndpoint, {headers: this._config().headers, params: filter})
 			.then(r => {
