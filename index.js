@@ -109,6 +109,8 @@ module.exports = class EmviClient {
 			};
 		}
 
+		console.log(filter);
+
 		return new Promise((resolve, reject) => {
 			axios.get(this.api_host+searchAllEndpoint, {headers: this._config().headers, params: filter})
 			.then(r => {
@@ -184,7 +186,10 @@ module.exports = class EmviClient {
 		});
 	}
 
-	getPinned(offset_articles, offset_lists) {
+	getPinned(articles, lists, offset_articles, offset_lists) {
+		this._checkParamIsBoolean(articles, "articles");
+		this._checkParamIsBoolean(lists, "lists");
+
 		if(offset_articles !== undefined && offset_articles !== null) {
 			this._checkParamIsNumber(offset_articles, "offset_articles");
 		}
@@ -194,7 +199,7 @@ module.exports = class EmviClient {
 		}
 
 		return new Promise((resolve, reject) => {
-			axios.get(this.api_host+pinnedEndpoint, {headers: this._config().headers, params: {offset_articles, offset_lists}})
+			axios.get(this.api_host+pinnedEndpoint, {headers: this._config().headers, params: {articles, lists, offset_articles, offset_lists}})
 			.then(r => {
 				resolve(r.data);
 			});
@@ -216,14 +221,8 @@ module.exports = class EmviClient {
 		});
 	}
 
-	getListEntries(id, lang, filter) {
-		this._checkParamIsString(id);
-
-		if(langId !== undefined && langId !== null) {
-			this._checkParamIsString(langId, "langId");
-		}
-
-		// TODO validate filter
+	getListEntries(id, langId, filter) {
+		this._checkListEntriesParamsAndBuildFilter(id, langId, filter);
 
 		return new Promise((resolve, reject) => {
 			axios.get(this.api_host+listEntriesEndpoint.replace("{id}", id), {headers: this._config().headers, params: {lang: langId}})
@@ -275,6 +274,24 @@ module.exports = class EmviClient {
 		return filter;
 	}
 
+	_checkListEntriesParamsAndBuildFilter(id, langId, filter) {
+		this._checkParamIsString(id);
+
+		if(langId !== undefined && langId !== null) {
+			this._checkParamIsString(langId, "langId");
+		}
+
+		if(filter === undefined || filter === null) {
+			filter = {};
+		}
+
+		if(typeof filter !== "object") {
+			throw new TypeError("filter must be of type object");
+		}
+
+		return filter;
+	}
+
 	_checkParamIsString(param, name) {
 		if(typeof param !== "string") {
 			throw new TypeError(`${name} must be of type string`);
@@ -284,6 +301,12 @@ module.exports = class EmviClient {
 	_checkParamIsNumber(param, name) {
 		if(typeof param !== "number") {
 			throw new TypeError(`${name} must be of type number`);
+		}
+	}
+
+	_checkParamIsBoolean(param, name) {
+		if(typeof param !== "boolean") {
+			throw new TypeError(`${name} must be of type boolean`);
 		}
 	}
 
