@@ -256,8 +256,8 @@ module.exports = class EmviClient {
 	}
 
 	_checkSearchParamsAndBuildFilter(query, filter) {
-		if(typeof query !== "string") {
-			throw new TypeError("query must be of type string");
+		if(query !== undefined && query !== null) {
+			this._checkParamIsString(query, "query");
 		}
 
 		if(filter === undefined || filter === null) {
