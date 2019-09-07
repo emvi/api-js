@@ -66,7 +66,8 @@ module.exports = class EmviClient {
 		return new Promise((resolve, reject) => {
 			axios.get(this.api_host+searchArticlesEndpoint, {headers: this._config().headers, params: filter})
 			.then(r => {
-				resolve({results: r.data.articles || [], count: r.data.count});
+				r.data.results = r.data.results || [];
+				resolve(r.data);
 			});
 		});
 	}
@@ -77,7 +78,8 @@ module.exports = class EmviClient {
 		return new Promise((resolve, reject) => {
 			axios.get(this.api_host+searchListsEndpoint, {headers: this._config().headers, params: filter})
 			.then(r => {
-				resolve({results: r.data.lists || [], count: r.data.count});
+				r.data.results = r.data.results || [];
+				resolve(r.data);
 			});
 		});
 	}
@@ -88,7 +90,8 @@ module.exports = class EmviClient {
 		return new Promise((resolve, reject) => {
 			axios.get(this.api_host+searchTagsEndpoint, {headers: this._config().headers, params: filter})
 			.then(r => {
-				resolve({results: r.data.tags || [], count: r.data.count});
+				r.data.results = r.data.results || [];
+				resolve(r.data);
 			});
 		});
 	}
@@ -220,11 +223,12 @@ module.exports = class EmviClient {
 	}
 
 	getListEntries(id, langId, filter) {
-		this._checkListEntriesParamsAndBuildFilter(id, langId, filter);
+		filter = this._checkListEntriesParamsAndBuildFilter(id, langId, filter);
 
 		return new Promise((resolve, reject) => {
-			axios.get(this.api_host+listEntriesEndpoint.replace("{id}", id), {headers: this._config().headers, params: {lang: langId}})
+			axios.get(this.api_host+listEntriesEndpoint.replace("{id}", id), {headers: this._config().headers, params: filter})
 			.then(r => {
+				r.data.entries = r.data.entries || [];
 				resolve(r.data);
 			});
 		});
@@ -287,6 +291,7 @@ module.exports = class EmviClient {
 			throw new TypeError("filter must be of type object");
 		}
 
+		filter.lang = langId;
 		return filter;
 	}
 
