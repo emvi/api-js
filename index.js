@@ -66,7 +66,7 @@ module.exports = class EmviClient {
 		return new Promise((resolve, reject) => {
 			axios.get(this.api_host+searchArticlesEndpoint, {headers: this._config().headers, params: filter})
 			.then(r => {
-				r.data.results = r.data.results || [];
+				r.data.articles = r.data.articles || [];
 				resolve(r.data);
 			});
 		});
@@ -78,7 +78,7 @@ module.exports = class EmviClient {
 		return new Promise((resolve, reject) => {
 			axios.get(this.api_host+searchListsEndpoint, {headers: this._config().headers, params: filter})
 			.then(r => {
-				r.data.results = r.data.results || [];
+				r.data.lists = r.data.lists || [];
 				resolve(r.data);
 			});
 		});
@@ -90,7 +90,7 @@ module.exports = class EmviClient {
 		return new Promise((resolve, reject) => {
 			axios.get(this.api_host+searchTagsEndpoint, {headers: this._config().headers, params: filter})
 			.then(r => {
-				r.data.results = r.data.results || [];
+				r.data.tags = r.data.tags || [];
 				resolve(r.data);
 			});
 		});
@@ -115,6 +115,11 @@ module.exports = class EmviClient {
 		return new Promise((resolve, reject) => {
 			axios.get(this.api_host+searchAllEndpoint, {headers: this._config().headers, params: filter})
 			.then(r => {
+				r.data.articles = r.data.articles || [];
+				r.data.groups = r.data.groups || [];
+				r.data.lists = r.data.lists || [];
+				r.data.tags = r.data.tags || [];
+				r.data.user = r.data.user || [];
 				resolve(r.data);
 			});
 		});
