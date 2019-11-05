@@ -69,6 +69,9 @@ module.exports = class EmviClient {
 			.then(r => {
 				r.data.articles = r.data.articles || [];
 				resolve(r.data);
+			})
+			.catch(e => {
+				reject(e);
 			});
 		});
 	}
@@ -81,6 +84,9 @@ module.exports = class EmviClient {
 			.then(r => {
 				r.data.lists = r.data.lists || [];
 				resolve(r.data);
+			})
+			.catch(e => {
+				reject(e);
 			});
 		});
 	}
@@ -93,6 +99,9 @@ module.exports = class EmviClient {
 			.then(r => {
 				r.data.tags = r.data.tags || [];
 				resolve(r.data);
+			})
+			.catch(e => {
+				reject(e);
 			});
 		});
 	}
@@ -122,6 +131,9 @@ module.exports = class EmviClient {
 				r.data.tags = r.data.tags || [];
 				r.data.user = r.data.user || [];
 				resolve(r.data);
+			})
+			.catch(e => {
+				reject(e);
 			});
 		});
 	}
@@ -131,6 +143,9 @@ module.exports = class EmviClient {
 			this.axios.get(this.api_host+organizationEndpoint, {headers: this._config().headers})
 			.then(r => {
 				resolve(r.data);
+			})
+			.catch(e => {
+				reject(e);
 			});
 		});
 	}
@@ -140,6 +155,9 @@ module.exports = class EmviClient {
 			this.axios.get(this.api_host+languagesEndpoint, {headers: this._config().headers})
 			.then(r => {
 				resolve(r.data);
+			})
+			.catch(e => {
+				reject(e);
 			});
 		});
 	}
@@ -151,6 +169,9 @@ module.exports = class EmviClient {
 			this.axios.get(this.api_host+languageEndpoint.replace("{id}", id), {headers: this._config().headers})
 			.then(r => {
 				resolve(r.data);
+			})
+			.catch(e => {
+				reject(e);
 			});
 		});
 	}
@@ -170,6 +191,9 @@ module.exports = class EmviClient {
 			this.axios.get(this.api_host+articleEndpoint.replace("{id}", id), {headers: this._config().headers, params: {lang: langId, version}})
 			.then(r => {
 				resolve(r.data);
+			})
+			.catch(e => {
+				reject(e);
 			});
 		});
 	}
@@ -189,6 +213,9 @@ module.exports = class EmviClient {
 			this.axios.get(this.api_host+articleHistoryEndpoint.replace("{id}", id), {headers: this._config().headers, params: {lang: langId, offset}})
 			.then(r => {
 				resolve(r.data);
+			})
+			.catch(e => {
+				reject(e);
 			});
 		});
 	}
@@ -209,6 +236,9 @@ module.exports = class EmviClient {
 			this.axios.get(this.api_host+pinnedEndpoint, {headers: this._config().headers, params: {articles, lists, offset_articles, offset_lists}})
 			.then(r => {
 				resolve(r.data);
+			})
+			.catch(e => {
+				reject(e);
 			});
 		});
 	}
@@ -224,6 +254,9 @@ module.exports = class EmviClient {
 			this.axios.get(this.api_host+listEndpoint.replace("{id}", id), {headers: this._config().headers, params: {lang: langId}})
 			.then(r => {
 				resolve(r.data);
+			})
+			.catch(e => {
+				reject(e);
 			});
 		});
 	}
@@ -236,6 +269,9 @@ module.exports = class EmviClient {
 			.then(r => {
 				r.data.entries = r.data.entries || [];
 				resolve(r.data);
+			})
+			.catch(e => {
+				reject(e);
 			});
 		});
 	}
@@ -247,6 +283,9 @@ module.exports = class EmviClient {
 			this.axios.get(this.api_host+tagEndpoint.replace("{name}", name), {headers: this._config().headers})
 			.then(r => {
 				resolve(r.data);
+			})
+			.catch(e => {
+				reject(e);
 			});
 		});
 	}
@@ -258,6 +297,9 @@ module.exports = class EmviClient {
 				.then(() => {
 					e.config.headers = this._config().headers;
 					return this.axios.request(e.config);
+				})
+				.catch(e => {
+					return Promise.reject(e);
 				});
 			}
 
